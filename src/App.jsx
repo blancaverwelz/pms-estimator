@@ -350,7 +350,7 @@ export default function PMSEstimator() {
             <Wrench size={14} className="text-emerald-400" />
             <span className="text-emerald-400 text-xs font-semibold uppercase tracking-widest">UnReal Auto Center</span>
           </div>
-          <h1 className="text-white text-2xl sm:text-3xl font-bold">Preventive Maintenance</h1>
+          <h1 className="text-white text-2xl sm:text-3xl font-bold">Automotive Preventive Maintenance</h1>
           <p className="text-slate-500 text-sm">Service estimator & instant quote generator</p>
         </div>
 
