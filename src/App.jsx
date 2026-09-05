@@ -1,12 +1,13 @@
-import { useState, useEffect, lazy, Suspense } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence, animate } from "framer-motion";
 import {
-  Car, Truck, ChevronRight, ChevronLeft, Droplets, Wrench,
-  ShieldCheck, Zap, Wind, AlertCircle,
+  Car, ChevronRight, ChevronLeft, Droplets, Wrench,
+  ShieldCheck, Zap, Wind, AlertCircle, Gauge,
   ReceiptText, CalendarCheck, Copy, Check
 } from "lucide-react";
-
-const Hero3D = lazy(() => import("./Hero3D.jsx"));
+import sedanImg from "./assets/sedan.png";
+import suvPickupsImg from "./assets/suv_pickups.png";
+import skeletonImg from "./assets/skeleton.png";
 
 // ─── DATA ────────────────────────────────────────────────────────────────────
 const DB = {
@@ -94,8 +95,8 @@ const DB = {
 };
 
 const VEHICLE_TYPES = [
-  { id: "Sedan", label: "Sedan / Hatchback", sub: "City car, compact, coupe", Icon: Car },
-  { id: "SUV", label: "SUV / Pickup Truck", sub: "Crossover, 4WD, van", Icon: Truck },
+  { id: "Sedan", label: "Sedan / Hatchback", sub: "City car, compact, coupe", img: sedanImg },
+  { id: "SUV", label: "SUV / Pickup Truck", sub: "Crossover, 4WD, van", img: suvPickupsImg },
 ];
 
 const CATEGORY_ICON = {
@@ -150,7 +151,7 @@ function CalculatingCard({ categories }) {
   return (
     <div className="rounded-2xl border border-slate-700 bg-slate-800/80 overflow-hidden">
       <div className="px-5 py-4 border-b border-slate-700 flex items-center gap-2">
-        <ReceiptText size={15} className="text-emerald-400" />
+        <ReceiptText size={15} className="text-accent" />
         <span className="text-white text-sm font-semibold">Calculating Estimate…</span>
       </div>
       <div className="px-5 py-5 space-y-3.5">
@@ -166,9 +167,9 @@ function CalculatingCard({ categories }) {
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ delay: i * 0.18 + 0.15, duration: 0.25, ease: "backOut" }}
-              className="w-4 h-4 rounded-full bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center shrink-0"
+              className="w-4 h-4 rounded-full bg-accent/20 border border-accent/40 flex items-center justify-center shrink-0"
             >
-              <Check size={10} className="text-emerald-400" />
+              <Check size={10} className="text-accent" />
             </motion.span>
             <span className="text-slate-400 text-xs">Tallying {cat.toLowerCase()}…</span>
           </motion.div>
@@ -177,7 +178,7 @@ function CalculatingCard({ categories }) {
           initial={{ opacity: 0 }}
           animate={{ opacity: [0.35, 1, 0.35] }}
           transition={{ delay: categories.length * 0.18 + 0.15, duration: 1.1, repeat: Infinity }}
-          className="text-emerald-400 text-xs font-medium pt-1"
+          className="text-accent text-xs font-medium pt-1"
         >
           Finalizing total…
         </motion.p>
@@ -187,30 +188,58 @@ function CalculatingCard({ categories }) {
 }
 
 // ─── STEP INDICATOR ───────────────────────────────────────────────────────────
+const STEP_ICONS = [Car, Gauge, ReceiptText, CalendarCheck];
+
 function Steps({ current }) {
   const steps = ["Vehicle", "Mileage", "Review", "Confirm"];
   return (
-    <div className="flex items-center gap-0 mb-12">
+    <div className="flex items-start gap-0 mb-12">
       {steps.map((s, i) => {
         const idx = i + 1;
         const done = current > idx;
         const active = current === idx;
+        const StepIcon = STEP_ICONS[i];
         return (
-          <div key={s} className="flex items-center flex-1 last:flex-none">
-            <div className={`flex items-center gap-2.5 ${active ? "text-emerald-400" : done ? "text-slate-400" : "text-slate-600"}`}>
-              <motion.span
-                animate={active ? { scale: [1, 1.12, 1] } : { scale: 1 }}
-                transition={{ duration: 0.4, ease: "easeOut" }}
-                className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold border ${active ? "border-emerald-400 bg-emerald-400/10 text-emerald-400 shadow-[0_0_14px_rgba(52,211,153,0.35)]" : done ? "border-slate-500 bg-slate-700 text-slate-400" : "border-slate-700 text-slate-600"}`}
-              >
-                {done ? <Check size={12} /> : idx}
-              </motion.span>
-              <span className={`text-xs font-medium hidden sm:block tracking-wide ${active ? "text-emerald-400" : done ? "text-slate-400" : "text-slate-600"}`}>{s}</span>
+          <div key={s} className="flex items-start flex-1 last:flex-none">
+            <div className="flex flex-col items-center gap-2 w-14 sm:w-20 shrink-0">
+              <div className="relative w-9 h-9 flex items-center justify-center">
+                {active && (
+                  <>
+                    <motion.span
+                      initial={{ opacity: 0, scale: 0.7 }}
+                      animate={{ opacity: [0.5, 0.15, 0.5], scale: [1, 1.22, 1] }}
+                      transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+                      className="absolute inset-0 rounded-full border border-accent/50"
+                    />
+                    <span className="absolute inset-[-4px] rounded-full border border-accent/25" />
+                  </>
+                )}
+                <motion.span
+                  animate={active ? { scale: [1, 1.1, 1] } : { scale: 1 }}
+                  transition={{ duration: 0.4, ease: "easeOut" }}
+                  className={`relative w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold border ${active ? "border-accent bg-accent/10 text-accent shadow-[0_0_16px_rgba(53,231,207,0.45)]" : done ? "border-slate-500 bg-slate-700 text-slate-400" : "border-slate-700 text-slate-600"}`}
+                >
+                  {done ? <Check size={13} /> : active ? <StepIcon size={15} /> : idx}
+                </motion.span>
+              </div>
+              {active ? (
+                <div className="flex items-baseline gap-1">
+                  <span className="text-accent text-sm font-bold leading-none">{idx}</span>
+                  <span className="text-accent text-[10px] font-semibold uppercase tracking-wide hidden sm:block">{s}</span>
+                </div>
+              ) : (
+                <span className={`text-[10px] font-medium uppercase tracking-wide hidden sm:block ${done ? "text-slate-400" : "text-slate-600"}`}>{s}</span>
+              )}
             </div>
             {i < steps.length - 1 && (
-              <div className="flex-1 h-[3px] mx-3 rounded-full bg-slate-700 overflow-hidden relative">
+              <div
+                className="flex-1 h-[3px] mx-1 sm:mx-3 rounded-full overflow-hidden relative mt-4"
+                style={{
+                  backgroundImage: "repeating-linear-gradient(135deg, #2D3540 0px, #2D3540 4px, #171d24 4px, #171d24 8px)",
+                }}
+              >
                 <motion.div
-                  className="absolute inset-y-0 left-0 w-full rounded-full bg-slate-400"
+                  className="absolute inset-y-0 left-0 w-full rounded-full bg-accent"
                   style={{ transformOrigin: "left" }}
                   initial={false}
                   animate={{ scaleX: done ? 1 : 0 }}
@@ -231,7 +260,7 @@ function Step1({ onSelect }) {
     <div>
       <p className="text-slate-400 text-sm sm:text-[15px] leading-relaxed mb-7">Select your vehicle category to get started.</p>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
-        {VEHICLE_TYPES.map(({ id, label, sub, Icon }, i) => (
+        {VEHICLE_TYPES.map(({ id, label, sub, img }, i) => (
           <motion.button
             key={id}
             initial={{ opacity: 0, y: 10 }}
@@ -240,16 +269,16 @@ function Step1({ onSelect }) {
             whileHover={{ y: -4, scale: 1.015 }}
             whileTap={{ scale: 0.985 }}
             onClick={() => onSelect(id)}
-            className="group flex flex-col items-start gap-4 p-6 sm:p-7 rounded-2xl border border-slate-700 bg-slate-800/60 hover:border-emerald-500 hover:bg-slate-800 hover:shadow-[0_10px_30px_-8px_rgba(16,185,129,0.25)] transition-colors duration-200 text-left"
+            className="group flex flex-col items-start gap-4 p-6 sm:p-7 rounded-2xl border border-slate-700 bg-slate-800/60 hover:border-accent hover:bg-slate-800 hover:shadow-[0_10px_30px_-8px_rgba(53,231,207,0.25)] transition-colors duration-200 text-left"
           >
-            <span className="p-3 rounded-xl bg-slate-700 group-hover:bg-emerald-500/15 group-hover:text-emerald-400 text-slate-300 transition-all">
-              <Icon size={28} />
+            <span className="w-full rounded-xl bg-slate-950/40 overflow-hidden">
+              <img src={img} alt={label} className="w-full h-24 sm:h-28 object-contain" />
             </span>
             <div>
               <p className="font-semibold text-white text-base sm:text-lg">{label}</p>
               <p className="text-slate-500 text-xs sm:text-sm mt-1">{sub}</p>
             </div>
-            <ChevronRight size={16} className="text-slate-600 group-hover:text-emerald-400 mt-auto self-end transition-colors" />
+            <ChevronRight size={16} className="text-slate-600 group-hover:text-accent mt-auto self-end transition-colors" />
           </motion.button>
         ))}
       </div>
@@ -273,9 +302,9 @@ function Step2({ vehicle, onSelect, onBack }) {
             whileHover={{ y: -3, scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => onSelect(km)}
-            className="group flex flex-col items-center justify-center gap-1 py-5 sm:py-6 px-3 rounded-2xl border border-slate-700 bg-slate-800/60 hover:border-emerald-500 hover:bg-emerald-500/5 hover:shadow-[0_10px_26px_-10px_rgba(16,185,129,0.3)] transition-colors duration-200"
+            className="group flex flex-col items-center justify-center gap-1 py-5 sm:py-6 px-3 rounded-2xl border border-slate-700 bg-slate-800/60 hover:border-accent hover:bg-accent/5 hover:shadow-[0_10px_26px_-10px_rgba(53,231,207,0.3)] transition-colors duration-200"
           >
-            <Zap size={16} className="text-slate-500 group-hover:text-emerald-400 mb-1 transition-colors" />
+            <Zap size={16} className="text-slate-500 group-hover:text-accent mb-1 transition-colors" />
             <span className="text-white font-bold text-lg">{km.split(" ")[0]}</span>
             <span className="text-slate-500 text-xs">KM Service</span>
           </motion.button>
@@ -373,7 +402,7 @@ function Step3({ vehicle, mileage, onBook, onBack }) {
             >
         <div className="rounded-2xl border border-slate-700 bg-slate-800/80 overflow-hidden">
           <div className="px-5 py-4 border-b border-slate-700 flex items-center gap-2">
-            <ReceiptText size={15} className="text-emerald-400" />
+            <ReceiptText size={15} className="text-accent" />
             <span className="text-white text-sm font-semibold">Estimated Invoice</span>
           </div>
           <div className="px-5 py-4 space-y-2.5">
@@ -402,10 +431,10 @@ function Step3({ vehicle, mileage, onBook, onBack }) {
             initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.15 }}
-            className="mx-5 mb-4 rounded-xl bg-emerald-500/8 border border-emerald-500/20 shadow-[0_0_24px_-6px_rgba(16,185,129,0.35)] px-4 py-3.5"
+            className="mx-5 mb-4 rounded-xl bg-accent/8 border border-accent/20 shadow-[0_0_24px_-6px_rgba(53,231,207,0.35)] px-4 py-3.5"
           >
             <p className="text-slate-400 text-xs mb-1">Total Estimate</p>
-            <p className="text-emerald-400 font-mono font-bold text-2xl sm:text-[26px] tracking-tight">
+            <p className="text-accent font-mono font-bold text-2xl sm:text-[26px] tracking-tight">
               <AnimatedNumber value={total} />
             </p>
             <p className="text-slate-600 text-xs mt-0.5">Inclusive of all parts & labor</p>
@@ -415,7 +444,7 @@ function Step3({ vehicle, mileage, onBook, onBack }) {
               whileHover={{ y: -2, scale: 1.01 }}
               whileTap={{ scale: 0.98 }}
               onClick={onBook}
-              className="w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-bold text-sm flex items-center justify-center gap-2 transition-colors shadow-[0_8px_20px_-6px_rgba(16,185,129,0.5)]"
+              className="w-full py-3 rounded-xl bg-accent hover:bg-accent/85 text-slate-900 font-bold text-sm flex items-center justify-center gap-2 transition-colors shadow-[0_8px_20px_-6px_rgba(53,231,207,0.5)]"
             >
               <CalendarCheck size={16} /> Proceed to Booking
             </motion.button>
@@ -445,9 +474,9 @@ function Step4({ vehicle, mileage, quoteID, onRestart }) {
         initial={{ opacity: 0, scale: 0.85 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-        className="w-16 h-16 rounded-full bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center mb-6 shadow-[0_0_24px_-6px_rgba(16,185,129,0.4)]"
+        className="w-16 h-16 rounded-full bg-accent/15 border border-accent/30 flex items-center justify-center mb-6 shadow-[0_0_24px_-6px_rgba(53,231,207,0.4)]"
       >
-        <CalendarCheck size={28} className="text-emerald-400" />
+        <CalendarCheck size={28} className="text-accent" />
       </motion.div>
       <h2 className="text-white text-xl sm:text-2xl font-bold mb-1.5">Booking Request Confirmed</h2>
       <p className="text-slate-400 text-sm leading-relaxed mb-7 max-w-xs">Our service advisor will contact you within 2 business hours to confirm your appointment.</p>
@@ -468,7 +497,7 @@ function Step4({ vehicle, mileage, quoteID, onRestart }) {
         </div>
         <div className="border-t border-slate-700 pt-3 flex justify-between items-center">
           <span className="text-slate-500 text-sm">Quote ID</span>
-          <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={copy} className="flex items-center gap-1.5 text-emerald-400 font-mono text-sm font-bold hover:text-emerald-300 transition-colors">
+          <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={copy} className="flex items-center gap-1.5 text-accent font-mono text-sm font-bold hover:text-accent transition-colors">
             {quoteID} {copied ? <Check size={13} /> : <Copy size={13} />}
           </motion.button>
         </div>
@@ -504,25 +533,23 @@ export default function PMSEstimator() {
         {/* Header */}
         <div className="mb-9">
           <div className="flex items-center gap-2 mb-1.5">
-            <Wrench size={14} className="text-emerald-400" />
-            <span className="text-emerald-400 text-xs font-semibold uppercase tracking-widest">UnReal Auto Center</span>
+            <Wrench size={14} className="text-accent" />
+            <span className="text-accent text-xs font-semibold uppercase tracking-widest">UnReal Auto Center</span>
           </div>
           <h1 className="text-white text-2xl sm:text-4xl font-bold tracking-tight">Automotive Preventive Maintenance</h1>
           <p className="text-slate-500 text-sm sm:text-[15px] mt-1.5">Service estimator & instant quote generator</p>
         </div>
 
-        {/* Hero — isolated decorative 3D moment, does not affect wizard state or load */}
+        {/* Hero — static decorative illustration */}
         <div className="mb-9 rounded-2xl border border-slate-800 bg-slate-900/40 overflow-hidden relative">
-          <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 via-transparent to-transparent pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-br from-accent/5 via-transparent to-transparent pointer-events-none" />
           <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 px-6 py-6 sm:py-7">
             <div className="flex-1 text-center sm:text-left">
-              <p className="text-emerald-400 text-xs font-semibold uppercase tracking-widest mb-1">Precision Auto Care</p>
-              <p className="text-slate-400 text-sm max-w-sm">Transparent, itemized maintenance estimates — no surprises at the counter.</p>
+              <p className="text-accent text-xs font-semibold uppercase tracking-widest mb-1">Precision Auto Care</p>
+              <p className="text-slate-400 text-sm max-w-sm">Transparent, itemized maintenance estimates —<br />no surprises at the counter.</p>
             </div>
-            <div className="w-full sm:w-56 h-36 sm:h-40 shrink-0">
-              <Suspense fallback={null}>
-                <Hero3D />
-              </Suspense>
+            <div className="w-full sm:w-[420px] h-40 sm:h-52 shrink-0">
+              <img src={skeletonImg} alt="" aria-hidden="true" className="w-full h-full object-contain" />
             </div>
           </div>
         </div>
