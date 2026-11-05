@@ -1,52 +1,41 @@
-# Rapide — Automotive PMS Cost Estimator
+# UnReal Auto Center — Service Estimator
 
-Live preventive-maintenance cost estimator for UnReal Auto Center. A 4-step wizard
-walks a customer from vehicle type to a final itemized quote and booking confirmation.
+Customer-facing preventive-maintenance estimator. A customer picks a vehicle category and
+service interval, reviews an itemized peso estimate, then enters a short booking request.
 
-**Stack:** React 19 + Vite, Tailwind v4, Framer Motion, vanilla Three.js (hero only).
-Dark theme — slate-950 background, emerald-400 accent.
+**Stack:** React 19, Vite, Tailwind v4, Framer Motion, Lucide. Plain JavaScript, static hosting (Vercel).
 
 ## Flow
 
-1. **Vehicle** — select vehicle category
-2. **Mileage** — select service interval
-3. **Review / Estimate** — itemized checklist + calculated invoice total
-4. **Booking Confirmation** — quote ID, summary, copy-to-clipboard
+1. **Vehicle** — Sedan / Hatchback or SUV / Pickup Truck
+2. **Mileage** — 10,000 / 20,000 / 40,000 / 60,000 KM
+3. **Estimate** — itemized parts, inspections, labor and shop fee; total shown immediately
+4. **Booking** — name, mobile number, preferred date (validated inline)
+5. **Thank you** — selection, requested date and total; restart clears everything
 
-All logic lives in `src/App.jsx` (single-file, ~550 lines). Pricing data (`DB`),
-`LABOR_RATES`, `SHOP_FEE`, and the `fmt` / `quoteId` helpers are the source of truth
-for the estimate math — treat these as protected when making styling/motion changes.
+## Booking is frontend-only
 
-## Features
+The booking form never transmits, logs or stores anything. Submitting only advances local
+state; reloading clears it. There is no backend, no appointment confirmation and no callback.
+Real delivery and scheduling are deferred (roadmap F1).
 
-- Animated step progress indicator
-- Micro-interactions (hover/tap) on all interactive elements via Framer Motion
-- "Calculating…" reveal sequence before the invoice total appears (Step 3)
-- Staggered entrance for checklist line items
-- SVG draw-in checkmark animation for "Replace" items
-- Animated count-up for the total estimate
-- Isolated hero section: a rotating low-poly wireframe car built from Three.js
-  primitives, code-split via `React.lazy`/`Suspense` (`src/Hero3D.jsx`) so it never
-  blocks or delays the wizard. Respects `prefers-reduced-motion`.
+## Structure
+
+- `src/data/serviceCatalog.js` — pricing catalog, labor rates, shop fee, vehicle metadata (source of truth)
+- `src/lib/estimate.js` — pure estimate/grouping/peso formatting helpers
+- `src/lib/bookingValidation.js` — pure draft validation and local-date handling
+- `src/features/estimator/` — `Estimator` (workflow + draft state) and one file per step
+- `src/components/` — hero, progress, selection bar, estimate summary, responsive artwork
+- `src/assets/vehicles/`, `src/assets/environment/` — optimized WebP imagery (desktop + mobile)
+- `src/index.css` — theme tokens and shared styling
+- `tests/` — Node test runner checks for estimates and booking validation
 
 ## Development
 
 ```bash
-npm install
-npm run dev      # local dev server
-npm run build     # production build → dist/
-npm run lint      # oxlint
-npm run preview   # preview production build
+npm ci
+npm run dev
+npm run lint
+npm test        # estimate + booking validation tests
+npm run build   # production build → dist/
 ```
-
-## Deployment
-
-Hosted on Vercel, auto-deploys on push to `main`.
-
-## Notes
-
-- No TypeScript — plain JavaScript throughout.
-- No backend — fully client-side, static hosting.
-- Three.js hero model is procedurally built (box + cylinder primitives), not an
-  imported/sourced asset — kept dependency-free and avoids the Blender pipeline
-  entirely for this decorative element.
