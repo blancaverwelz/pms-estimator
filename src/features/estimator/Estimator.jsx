@@ -146,6 +146,22 @@ export default function Estimator() {
           </div>
         </main>
       </div>
+      <footer className="mt-8 border-t border-edge/60 pt-6 text-center text-xs text-dim">
+        <p>© 2026 UnReal Auto Center. All rights reserved.</p>
+        <p className="mt-1">
+          Designed &amp; Developed by{" "}
+          <a
+            href="https://blancaver-studios.vercel.app/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-mute transition-colors hover:text-accent"
+          >
+            Blancaver Studios
+          </a>
+          .
+        </p>
+      </footer>
+      ;
     </MotionConfig>
   );
 }
